@@ -16,7 +16,10 @@ export const listMainEvents = createServerFn({ method: "GET" })
       .select("*")
       .order("scheduled_date", { ascending: false })
       .limit(50);
-    return data ?? [];
+    return (data ?? []).map((e) => ({
+      ...e,
+      title: `Main Test — ${new Date(e.scheduled_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`,
+    }));
   });
 
 // =============== ADMIN CREATE EVENT ===============
