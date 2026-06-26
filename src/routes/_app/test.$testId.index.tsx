@@ -10,7 +10,7 @@ import { formatTime } from "@/lib/format";
 import { toast } from "sonner";
 import { Flag, Clock, X } from "lucide-react";
 
-export const Route = createFileRoute("/_app/test/$testId/index")({
+export const Route = createFileRoute("/_app/test/$testId/")({
   head: () => ({ meta: [{ title: "Mock Test — Korangu" }] }),
   component: TestTaker,
 });
