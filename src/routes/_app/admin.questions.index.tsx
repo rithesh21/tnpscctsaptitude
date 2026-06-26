@@ -79,6 +79,7 @@ function AdminQuestions() {
             </SelectContent>
           </Select>
         </div>
+        <AiSeedButton topics={topics} onSeeded={() => qc.invalidateQueries({ queryKey: ["admin-questions"] })} />
         <Button onClick={() => setCreating(true)}><Plus className="mr-1 h-4 w-4" /> New</Button>
       </div>
 
