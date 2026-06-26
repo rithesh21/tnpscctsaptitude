@@ -55,7 +55,7 @@ function LB() {
         <p className="text-sm text-muted-foreground">No Main Test events yet.</p>
       )}
 
-      {lb && (
+      {lb && lb.event && (
         <Card>
           <CardHeader>
             <CardTitle>{lb.event.title}</CardTitle>
