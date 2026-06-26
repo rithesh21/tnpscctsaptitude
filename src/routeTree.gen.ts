@@ -9,38 +9,267 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as AppMainTestRouteImport } from './routes/_app/main-test'
+import { Route as AppLeaderboardRouteImport } from './routes/_app/leaderboard'
+import { Route as AppHistoryRouteImport } from './routes/_app/history'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppAdminRouteImport } from './routes/_app/admin'
+import { Route as AppAdminIndexRouteImport } from './routes/_app/admin.index'
+import { Route as AppPracticeNewRouteImport } from './routes/_app/practice.new'
+import { Route as AppAdminReportsRouteImport } from './routes/_app/admin.reports'
+import { Route as AppAdminPatternRouteImport } from './routes/_app/admin.pattern'
+import { Route as AppAdminMainTestsRouteImport } from './routes/_app/admin.main-tests'
+import { Route as AppAdminAnalyticsRouteImport } from './routes/_app/admin.analytics'
+import { Route as AppTestTestIdIndexRouteImport } from './routes/_app/test.$testId.index'
+import { Route as AppAdminQuestionsIndexRouteImport } from './routes/_app/admin.questions.index'
+import { Route as AppTestTestIdResultRouteImport } from './routes/_app/test.$testId.result'
+import { Route as AppAdminQuestionsBulkRouteImport } from './routes/_app/admin.questions.bulk'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMainTestRoute = AppMainTestRouteImport.update({
+  id: '/main-test',
+  path: '/main-test',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeaderboardRoute = AppLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppPracticeNewRoute = AppPracticeNewRouteImport.update({
+  id: '/practice/new',
+  path: '/practice/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminReportsRoute = AppAdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPatternRoute = AppAdminPatternRouteImport.update({
+  id: '/pattern',
+  path: '/pattern',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMainTestsRoute = AppAdminMainTestsRouteImport.update({
+  id: '/main-tests',
+  path: '/main-tests',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminAnalyticsRoute = AppAdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppTestTestIdIndexRoute = AppTestTestIdIndexRouteImport.update({
+  id: '/test/$testId/',
+  path: '/test/$testId/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminQuestionsIndexRoute = AppAdminQuestionsIndexRouteImport.update({
+  id: '/questions/',
+  path: '/questions/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppTestTestIdResultRoute = AppTestTestIdResultRouteImport.update({
+  id: '/test/$testId/result',
+  path: '/test/$testId/result',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminQuestionsBulkRoute = AppAdminQuestionsBulkRouteImport.update({
+  id: '/questions/bulk',
+  path: '/questions/bulk',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/admin': typeof AppAdminRouteWithChildren
+  '/dashboard': typeof AppDashboardRoute
+  '/history': typeof AppHistoryRoute
+  '/leaderboard': typeof AppLeaderboardRoute
+  '/main-test': typeof AppMainTestRoute
+  '/profile': typeof AppProfileRoute
+  '/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/admin/main-tests': typeof AppAdminMainTestsRoute
+  '/admin/pattern': typeof AppAdminPatternRoute
+  '/admin/reports': typeof AppAdminReportsRoute
+  '/practice/new': typeof AppPracticeNewRoute
+  '/admin/': typeof AppAdminIndexRoute
+  '/admin/questions/bulk': typeof AppAdminQuestionsBulkRoute
+  '/test/$testId/result': typeof AppTestTestIdResultRoute
+  '/admin/questions/': typeof AppAdminQuestionsIndexRoute
+  '/test/$testId/': typeof AppTestTestIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/history': typeof AppHistoryRoute
+  '/leaderboard': typeof AppLeaderboardRoute
+  '/main-test': typeof AppMainTestRoute
+  '/profile': typeof AppProfileRoute
+  '/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/admin/main-tests': typeof AppAdminMainTestsRoute
+  '/admin/pattern': typeof AppAdminPatternRoute
+  '/admin/reports': typeof AppAdminReportsRoute
+  '/practice/new': typeof AppPracticeNewRoute
+  '/admin': typeof AppAdminIndexRoute
+  '/admin/questions/bulk': typeof AppAdminQuestionsBulkRoute
+  '/test/$testId/result': typeof AppTestTestIdResultRoute
+  '/admin/questions': typeof AppAdminQuestionsIndexRoute
+  '/test/$testId': typeof AppTestTestIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_app/admin': typeof AppAdminRouteWithChildren
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/history': typeof AppHistoryRoute
+  '/_app/leaderboard': typeof AppLeaderboardRoute
+  '/_app/main-test': typeof AppMainTestRoute
+  '/_app/profile': typeof AppProfileRoute
+  '/_app/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/_app/admin/main-tests': typeof AppAdminMainTestsRoute
+  '/_app/admin/pattern': typeof AppAdminPatternRoute
+  '/_app/admin/reports': typeof AppAdminReportsRoute
+  '/_app/practice/new': typeof AppPracticeNewRoute
+  '/_app/admin/': typeof AppAdminIndexRoute
+  '/_app/admin/questions/bulk': typeof AppAdminQuestionsBulkRoute
+  '/_app/test/$testId/result': typeof AppTestTestIdResultRoute
+  '/_app/admin/questions/': typeof AppAdminQuestionsIndexRoute
+  '/_app/test/$testId/': typeof AppTestTestIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/dashboard'
+    | '/history'
+    | '/leaderboard'
+    | '/main-test'
+    | '/profile'
+    | '/admin/analytics'
+    | '/admin/main-tests'
+    | '/admin/pattern'
+    | '/admin/reports'
+    | '/practice/new'
+    | '/admin/'
+    | '/admin/questions/bulk'
+    | '/test/$testId/result'
+    | '/admin/questions/'
+    | '/test/$testId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/history'
+    | '/leaderboard'
+    | '/main-test'
+    | '/profile'
+    | '/admin/analytics'
+    | '/admin/main-tests'
+    | '/admin/pattern'
+    | '/admin/reports'
+    | '/practice/new'
+    | '/admin'
+    | '/admin/questions/bulk'
+    | '/test/$testId/result'
+    | '/admin/questions'
+    | '/test/$testId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/auth'
+    | '/_app/admin'
+    | '/_app/dashboard'
+    | '/_app/history'
+    | '/_app/leaderboard'
+    | '/_app/main-test'
+    | '/_app/profile'
+    | '/_app/admin/analytics'
+    | '/_app/admin/main-tests'
+    | '/_app/admin/pattern'
+    | '/_app/admin/reports'
+    | '/_app/practice/new'
+    | '/_app/admin/'
+    | '/_app/admin/questions/bulk'
+    | '/_app/test/$testId/result'
+    | '/_app/admin/questions/'
+    | '/_app/test/$testId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +277,176 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/main-test': {
+      id: '/_app/main-test'
+      path: '/main-test'
+      fullPath: '/main-test'
+      preLoaderRoute: typeof AppMainTestRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/leaderboard': {
+      id: '/_app/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof AppLeaderboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/history': {
+      id: '/_app/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/practice/new': {
+      id: '/_app/practice/new'
+      path: '/practice/new'
+      fullPath: '/practice/new'
+      preLoaderRoute: typeof AppPracticeNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/reports': {
+      id: '/_app/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AppAdminReportsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/pattern': {
+      id: '/_app/admin/pattern'
+      path: '/pattern'
+      fullPath: '/admin/pattern'
+      preLoaderRoute: typeof AppAdminPatternRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/main-tests': {
+      id: '/_app/admin/main-tests'
+      path: '/main-tests'
+      fullPath: '/admin/main-tests'
+      preLoaderRoute: typeof AppAdminMainTestsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/analytics': {
+      id: '/_app/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AppAdminAnalyticsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/test/$testId/': {
+      id: '/_app/test/$testId/'
+      path: '/test/$testId'
+      fullPath: '/test/$testId/'
+      preLoaderRoute: typeof AppTestTestIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/questions/': {
+      id: '/_app/admin/questions/'
+      path: '/questions'
+      fullPath: '/admin/questions/'
+      preLoaderRoute: typeof AppAdminQuestionsIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/test/$testId/result': {
+      id: '/_app/test/$testId/result'
+      path: '/test/$testId/result'
+      fullPath: '/test/$testId/result'
+      preLoaderRoute: typeof AppTestTestIdResultRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/questions/bulk': {
+      id: '/_app/admin/questions/bulk'
+      path: '/questions/bulk'
+      fullPath: '/admin/questions/bulk'
+      preLoaderRoute: typeof AppAdminQuestionsBulkRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
   }
 }
 
+interface AppAdminRouteChildren {
+  AppAdminAnalyticsRoute: typeof AppAdminAnalyticsRoute
+  AppAdminMainTestsRoute: typeof AppAdminMainTestsRoute
+  AppAdminPatternRoute: typeof AppAdminPatternRoute
+  AppAdminReportsRoute: typeof AppAdminReportsRoute
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
+  AppAdminQuestionsBulkRoute: typeof AppAdminQuestionsBulkRoute
+  AppAdminQuestionsIndexRoute: typeof AppAdminQuestionsIndexRoute
+}
+
+const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminAnalyticsRoute: AppAdminAnalyticsRoute,
+  AppAdminMainTestsRoute: AppAdminMainTestsRoute,
+  AppAdminPatternRoute: AppAdminPatternRoute,
+  AppAdminReportsRoute: AppAdminReportsRoute,
+  AppAdminIndexRoute: AppAdminIndexRoute,
+  AppAdminQuestionsBulkRoute: AppAdminQuestionsBulkRoute,
+  AppAdminQuestionsIndexRoute: AppAdminQuestionsIndexRoute,
+}
+
+const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
+  AppAdminRouteChildren,
+)
+
+interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRouteWithChildren
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppHistoryRoute: typeof AppHistoryRoute
+  AppLeaderboardRoute: typeof AppLeaderboardRoute
+  AppMainTestRoute: typeof AppMainTestRoute
+  AppProfileRoute: typeof AppProfileRoute
+  AppPracticeNewRoute: typeof AppPracticeNewRoute
+  AppTestTestIdResultRoute: typeof AppTestTestIdResultRoute
+  AppTestTestIdIndexRoute: typeof AppTestTestIdIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRouteWithChildren,
+  AppDashboardRoute: AppDashboardRoute,
+  AppHistoryRoute: AppHistoryRoute,
+  AppLeaderboardRoute: AppLeaderboardRoute,
+  AppMainTestRoute: AppMainTestRoute,
+  AppProfileRoute: AppProfileRoute,
+  AppPracticeNewRoute: AppPracticeNewRoute,
+  AppTestTestIdResultRoute: AppTestTestIdResultRoute,
+  AppTestTestIdIndexRoute: AppTestTestIdIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
