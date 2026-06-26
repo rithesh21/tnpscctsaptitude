@@ -13,6 +13,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as AppMainTestRouteImport } from './routes/_app/main-test'
+import { Route as AppLeaderboardRouteImport } from './routes/_app/leaderboard'
 import { Route as AppHistoryRouteImport } from './routes/_app/history'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppPracticeNewRouteImport } from './routes/_app/practice.new'
@@ -36,6 +38,16 @@ const IndexRoute = IndexRouteImport.update({
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMainTestRoute = AppMainTestRouteImport.update({
+  id: '/main-test',
+  path: '/main-test',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeaderboardRoute = AppLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
@@ -69,6 +81,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AppDashboardRoute
   '/history': typeof AppHistoryRoute
+  '/leaderboard': typeof AppLeaderboardRoute
+  '/main-test': typeof AppMainTestRoute
   '/profile': typeof AppProfileRoute
   '/practice/new': typeof AppPracticeNewRoute
   '/test/$testId/result': typeof AppTestTestIdResultRoute
@@ -79,6 +93,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AppDashboardRoute
   '/history': typeof AppHistoryRoute
+  '/leaderboard': typeof AppLeaderboardRoute
+  '/main-test': typeof AppMainTestRoute
   '/profile': typeof AppProfileRoute
   '/practice/new': typeof AppPracticeNewRoute
   '/test/$testId/result': typeof AppTestTestIdResultRoute
@@ -91,6 +107,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/history': typeof AppHistoryRoute
+  '/_app/leaderboard': typeof AppLeaderboardRoute
+  '/_app/main-test': typeof AppMainTestRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/practice/new': typeof AppPracticeNewRoute
   '/_app/test/$testId/result': typeof AppTestTestIdResultRoute
@@ -103,6 +121,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/history'
+    | '/leaderboard'
+    | '/main-test'
     | '/profile'
     | '/practice/new'
     | '/test/$testId/result'
@@ -113,6 +133,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/history'
+    | '/leaderboard'
+    | '/main-test'
     | '/profile'
     | '/practice/new'
     | '/test/$testId/result'
@@ -124,6 +146,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_app/dashboard'
     | '/_app/history'
+    | '/_app/leaderboard'
+    | '/_app/main-test'
     | '/_app/profile'
     | '/_app/practice/new'
     | '/_app/test/$testId/result'
@@ -164,6 +188,20 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/main-test': {
+      id: '/_app/main-test'
+      path: '/main-test'
+      fullPath: '/main-test'
+      preLoaderRoute: typeof AppMainTestRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/leaderboard': {
+      id: '/_app/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof AppLeaderboardRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/history': {
@@ -207,6 +245,8 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppHistoryRoute: typeof AppHistoryRoute
+  AppLeaderboardRoute: typeof AppLeaderboardRoute
+  AppMainTestRoute: typeof AppMainTestRoute
   AppProfileRoute: typeof AppProfileRoute
   AppPracticeNewRoute: typeof AppPracticeNewRoute
   AppTestTestIdResultRoute: typeof AppTestTestIdResultRoute
@@ -216,6 +256,8 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppHistoryRoute: AppHistoryRoute,
+  AppLeaderboardRoute: AppLeaderboardRoute,
+  AppMainTestRoute: AppMainTestRoute,
   AppProfileRoute: AppProfileRoute,
   AppPracticeNewRoute: AppPracticeNewRoute,
   AppTestTestIdResultRoute: AppTestTestIdResultRoute,
