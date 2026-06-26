@@ -390,7 +390,7 @@ Return ONLY a JSON array, no markdown, no commentary. Schema:
         option_b: String(q.option_b),
         option_c: String(q.option_c),
         option_d: String(q.option_d),
-        correct_option: String(q.correct_option).toUpperCase(),
+        correct_option: String(q.correct_option).toUpperCase() as "A" | "B" | "C" | "D",
         explanation: q.explanation ? String(q.explanation) : null,
         created_by: context.userId,
       }));
