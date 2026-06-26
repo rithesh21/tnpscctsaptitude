@@ -263,11 +263,32 @@ export const getLeaderboard = createServerFn({ method: "POST" })
       .maybeSingle();
     const { data: entries } = await context.supabase
       .from("leaderboard_entries")
-      .select("rank, score, time_taken_seconds, percentile, user_id, profiles!inner(name)")
+      .select("rank, score, time_taken_seconds, percentile, user_id")
       .eq("main_event_id", eventId)
       .order("rank")
       .limit(100);
-    return { event, entries: entries ?? [] };
+    const rows = (entries ?? []) as Array<{ rank: number; score: number; time_taken_seconds: number; percentile: number; user_id: string }>;
+    const userIds = rows.map((r) => r.user_id);
+    const { data: profs } = userIds.length
+      ? await context.supabase.from("profiles").select("id, name").in("id", userIds)
+      : { data: [] as { id: string; name: string }[] };
+    const nameMap = new Map((profs ?? []).map((p) => [p.id, p.name] as const));
+    const shaped = rows.map((r) => ({
+      rank: r.rank,
+      score: r.score,
+      timeSeconds: r.time_taken_seconds,
+      percentile: r.percentile,
+      name: nameMap.get(r.user_id) ?? "Aspirant",
+      isMe: r.user_id === context.userId,
+    }));
+    const eventShaped = event
+      ? {
+          ...event,
+          title: `Main Test — ${new Date(event.scheduled_date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`,
+          scored: event.status === "scored",
+        }
+      : null;
+    return { event: eventShaped, entries: shaped };
   });
 
 export const getMyMainStatus = createServerFn({ method: "GET" })
