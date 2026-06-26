@@ -315,3 +315,87 @@ export const adminResolveReport = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// =============== AI SEED ===============
+export const adminAiSeed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      topicId: z.string().uuid(),
+      difficulty: z.enum(["easy", "medium", "hard", "very_hard"]),
+      count: z.number().int().min(1).max(10),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { data: topic } = await context.supabase
+      .from("topics")
+      .select("name, unit")
+      .eq("id", data.topicId)
+      .maybeSingle();
+    if (!topic) throw new Error("Topic not found");
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+
+    const unitLabel = topic.unit === "I" ? "Quantitative Aptitude" : "Logical Reasoning";
+    const diffLabel = data.difficulty.replace("_", " ");
+    const prompt = `Generate ${data.count} ${diffLabel} multiple-choice questions on the topic "${topic.name}" (${unitLabel}) for Indian bank/SSC/placement competitive exam aspirants.
+
+Rules:
+- Each question must have exactly 4 options (A, B, C, D), only one correct.
+- Stems should be self-contained, unambiguous, and solvable in 1-3 minutes for the given difficulty.
+- Include a short explanation of the solution.
+- Avoid duplicates and trivia. Use realistic numerical values.
+
+Return ONLY a JSON array, no markdown, no commentary. Schema:
+[{"stem":"...","option_a":"...","option_b":"...","option_c":"...","option_d":"...","correct_option":"A|B|C|D","explanation":"..."}]`;
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: "You are an expert competitive exam question writer. Always reply with valid JSON only." },
+          { role: "user", content: prompt },
+        ],
+      }),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`AI gateway error ${res.status}: ${t.slice(0, 200)}`);
+    }
+    const json = await res.json();
+    const text: string = json.choices?.[0]?.message?.content ?? "";
+    const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+    let arr: any[];
+    try {
+      arr = JSON.parse(cleaned);
+    } catch {
+      const m = cleaned.match(/\[[\s\S]*\]/);
+      if (!m) throw new Error("AI did not return valid JSON");
+      arr = JSON.parse(m[0]);
+    }
+    if (!Array.isArray(arr)) throw new Error("AI response not an array");
+
+    const validOpts = new Set(["A", "B", "C", "D"]);
+    const inserts = arr
+      .filter((q) => q && q.stem && q.option_a && q.option_b && q.option_c && q.option_d && validOpts.has(String(q.correct_option).toUpperCase()))
+      .map((q) => ({
+        topic_id: data.topicId,
+        difficulty: data.difficulty,
+        stem: String(q.stem).trim(),
+        option_a: String(q.option_a),
+        option_b: String(q.option_b),
+        option_c: String(q.option_c),
+        option_d: String(q.option_d),
+        correct_option: String(q.correct_option).toUpperCase(),
+        explanation: q.explanation ? String(q.explanation) : null,
+        created_by: context.userId,
+      }));
+    if (inserts.length === 0) throw new Error("No valid questions parsed");
+    const { error } = await context.supabase.from("questions").insert(inserts);
+    if (error) throw new Error(error.message);
+    return { inserted: inserts.length };
+  });
