@@ -235,3 +235,59 @@ function QuestionEditor({ open, onClose, topics, editing, onSaved }: { open: boo
     </Dialog>
   );
 }
+
+function AiSeedButton({ topics, onSeeded }: { topics: Topic[]; onSeeded: () => void }) {
+  const seedFn = useServerFn(adminAiSeed);
+  const [open, setOpen] = useState(false);
+  const [topicId, setTopicId] = useState<string>("");
+  const [difficulty, setDifficulty] = useState("medium");
+  const [count, setCount] = useState(5);
+
+  useEffect(() => { if (!topicId && topics[0]) setTopicId(topics[0].id); }, [topics, topicId]);
+
+  const mut = useMutation({
+    mutationFn: () => seedFn({ data: { topicId, difficulty: difficulty as any, count } }),
+    onSuccess: (r) => { toast.success(`AI generated ${r.inserted} questions`); onSeeded(); setOpen(false); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <>
+      <Button variant="outline" onClick={() => setOpen(true)}><Sparkles className="mr-1 h-4 w-4" /> AI seed</Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Generate questions with AI</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Topic</Label>
+              <Select value={topicId} onValueChange={setTopicId}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{topics.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Difficulty</Label>
+              <Select value={difficulty} onValueChange={setDifficulty}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                  <SelectItem value="very_hard">Very hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Count (1–10)</Label>
+              <Input type="number" min={1} max={10} value={count} onChange={(e) => setCount(Math.max(1, Math.min(10, Number(e.target.value))))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={() => mut.mutate()} disabled={mut.isPending}>{mut.isPending ? "Generating…" : "Generate"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
