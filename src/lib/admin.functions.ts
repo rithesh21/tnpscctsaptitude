@@ -448,3 +448,39 @@ Return ONLY a JSON array, no markdown, no commentary. Schema:
     if (error) throw new Error(error.message);
     return { inserted: inserts.length };
   });
+
+// =============== ADMIN GRANTS (owner-only) ===============
+export const adminListAdmins = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("list_admin_emails");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as { email: string }[];
+  });
+
+export const adminGrantAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ email: z.string().email() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: res, error } = await context.supabase.rpc("grant_admin_by_email", { _email: data.email });
+    if (error) throw new Error(error.message);
+    return res as { ok: boolean; reason?: string };
+  });
+
+export const adminRevokeAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ email: z.string().email() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: res, error } = await context.supabase.rpc("revoke_admin_by_email", { _email: data.email });
+    if (error) throw new Error(error.message);
+    return res as { ok: boolean; reason?: string };
+  });
+
+export const adminAmIOwner = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.from("profiles").select("id").eq("id", context.userId).maybeSingle();
+    // owner check via auth.users.email — use RPC try
+    const { error } = await context.supabase.rpc("list_admin_emails");
+    return { isOwner: !error, hasProfile: !!data };
+  });
