@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/format";
 import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/_app/leaderboard")({
-  head: () => ({ meta: [{ title: "Leaderboard — Korangu" }] }),
+  head: () => ({ meta: [{ title: "Leaderboard — TNPSC101" }] }),
   component: LB,
 });
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/admin/")({
-  head: () => ({ meta: [{ title: "Admin — Korangu" }] }),
+  head: () => ({ meta: [{ title: "Admin — TNPSC101" }] }),
   component: Overview,
 });
 

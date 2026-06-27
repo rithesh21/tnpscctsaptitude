@@ -12,8 +12,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Korangu" },
-      { name: "description", content: "Sign in or create your Korangu account to start practicing mock tests." },
+      { title: "Sign in — TNPSC101" },
+      { name: "description", content: "Sign in or create your TNPSC101 account to start practicing mock tests." },
     ],
   }),
   component: AuthPage,
@@ -32,7 +32,7 @@ function AuthPage() {
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 flex items-center justify-center gap-2 font-semibold">
           <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">K</span>
-          <span>Korangu</span>
+          <span>TNPSC101</span>
         </Link>
         <Card>
           <CardHeader>

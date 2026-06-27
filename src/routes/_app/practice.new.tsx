@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/practice/new")({
-  head: () => ({ meta: [{ title: "New Practice Test — Korangu" }] }),
+  head: () => ({ meta: [{ title: "New Practice Test — TNPSC101" }] }),
   component: NewPractice,
 });
 

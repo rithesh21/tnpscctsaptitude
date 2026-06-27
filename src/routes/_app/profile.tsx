@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/profile")({
-  head: () => ({ meta: [{ title: "Profile — Korangu" }] }),
+  head: () => ({ meta: [{ title: "Profile — TNPSC101" }] }),
   component: Profile,
 });
 

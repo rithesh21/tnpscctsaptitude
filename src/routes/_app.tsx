@@ -49,7 +49,7 @@ function AppLayout() {
             </button>
             <Link to="/dashboard" className="flex items-center gap-2 font-semibold">
               <span className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground text-sm">K</span>
-              <span>Korangu</span>
+              <span>TNPSC101</span>
             </Link>
           </div>
           <div className="flex items-center gap-2">

@@ -6,9 +6,9 @@ import { BookOpen, Trophy, Clock, BarChart3 } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Korangu — Crack Bank, SSC & Placement Aptitude Tests" },
+      { title: "TNPSC101 — Crack Bank, SSC & Placement Aptitude Tests" },
       { name: "description", content: "Unlimited 25-question mock tests across 16 aptitude and reasoning topics. Compete weekly on the Saturday Main Test leaderboard." },
-      { property: "og:title", content: "Korangu — Aptitude & Reasoning Mock Tests" },
+      { property: "og:title", content: "TNPSC101 — Aptitude & Reasoning Mock Tests" },
       { property: "og:description", content: "Unlimited 25-question practice tests + weekly ranked Main Test for competitive exam aspirants." },
     ],
   }),
@@ -22,7 +22,7 @@ function Landing() {
         <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
             <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">K</span>
-            <span>Korangu</span>
+            <span>TNPSC101</span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link to="/leaderboard">
@@ -96,7 +96,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Korangu — built for aspirants.
+        © {new Date().getFullYear()} TNPSC101 — built for aspirants.
       </footer>
     </div>
   );
