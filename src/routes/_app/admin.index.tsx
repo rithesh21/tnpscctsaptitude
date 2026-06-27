@@ -1,18 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminDashboard } from "@/lib/admin.functions";
+import { useState } from "react";
+import { adminDashboard, adminListAdmins, adminGrantAdmin, adminRevokeAdmin } from "@/lib/admin.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/format";
+import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
+import { ShieldPlus, Trash2 } from "lucide-react";
+
+const OWNER_EMAIL = "ritheshmarshal21@gmail.com";
 
 export const Route = createFileRoute("/_app/admin/")({
-  head: () => ({ meta: [{ title: "Admin — Korangu" }] }),
+  head: () => ({ meta: [{ title: "Admin — TNPSC101" }] }),
   component: Overview,
 });
 
 function Overview() {
   const fn = useServerFn(adminDashboard);
   const { data, isLoading } = useQuery({ queryKey: ["admin-dash"], queryFn: () => fn() });
+  const { user } = useAuth();
+  const isOwner = (user?.email ?? "").toLowerCase() === OWNER_EMAIL;
+
   if (isLoading || !data) return <div className="text-muted-foreground">Loading…</div>;
 
   return (
@@ -22,6 +34,8 @@ function Overview() {
         <Stat label="Total users" value={data.totalUsers.toLocaleString()} />
         <Stat label="Tests today" value={data.testsToday.toLocaleString()} />
       </div>
+
+      {isOwner && <SuggestForAdmin />}
 
       <Card>
         <CardHeader><CardTitle>Questions per topic</CardTitle></CardHeader>
@@ -86,6 +100,103 @@ function Overview() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function SuggestForAdmin() {
+  const listFn = useServerFn(adminListAdmins);
+  const grantFn = useServerFn(adminGrantAdmin);
+  const revokeFn = useServerFn(adminRevokeAdmin);
+  const qc = useQueryClient();
+  const [email, setEmail] = useState("");
+
+  const { data: admins = [] } = useQuery({ queryKey: ["admin-list"], queryFn: () => listFn() });
+
+  const grant = useMutation({
+    mutationFn: (e: string) => grantFn({ data: { email: e } }),
+    onSuccess: (res: any) => {
+      if (res?.ok) {
+        toast.success("Admin access granted");
+        setEmail("");
+        qc.invalidateQueries({ queryKey: ["admin-list"] });
+      } else {
+        toast.error(res?.reason ?? "Could not grant admin");
+      }
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const revoke = useMutation({
+    mutationFn: (e: string) => revokeFn({ data: { email: e } }),
+    onSuccess: () => {
+      toast.success("Admin access revoked");
+      qc.invalidateQueries({ queryKey: ["admin-list"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    grant.mutate(email.trim());
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <ShieldPlus className="h-5 w-5 text-primary" />
+          Suggest for admin
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Grant admin access to anyone who has already signed up on TNPSC101. Enter their Gmail / login email below.
+        </p>
+        <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
+          <Input
+            type="email"
+            placeholder="user@gmail.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <Button type="submit" disabled={grant.isPending}>
+            {grant.isPending ? "Granting…" : "Grant admin"}
+          </Button>
+        </form>
+
+        <div>
+          <div className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Current admins</div>
+          <div className="flex flex-wrap gap-2">
+            {admins.length === 0 && <span className="text-sm text-muted-foreground">No admins listed.</span>}
+            {admins.map((a) => {
+              const isOwnerRow = a.email.toLowerCase() === OWNER_EMAIL;
+              return (
+                <div key={a.email} className="flex items-center gap-1 rounded-full border border-border bg-secondary py-1 pl-3 pr-1 text-sm">
+                  <span>{a.email}</span>
+                  {isOwnerRow ? (
+                    <Badge variant="outline" className="ml-1">owner</Badge>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => revoke.mutate(a.email)}
+                      disabled={revoke.isPending}
+                      aria-label={`Revoke ${a.email}`}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

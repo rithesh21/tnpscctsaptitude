@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Flag, Clock, X } from "lucide-react";
 
 export const Route = createFileRoute("/_app/test/$testId/")({
-  head: () => ({ meta: [{ title: "Mock Test — Korangu" }] }),
+  head: () => ({ meta: [{ title: "Mock Test — TNPSC101" }] }),
   component: TestTaker,
 });
 
