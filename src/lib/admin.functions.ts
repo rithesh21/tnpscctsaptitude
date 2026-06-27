@@ -88,20 +88,27 @@ const BulkRow = z.object({
   explanation: z.string().optional().nullable(),
 });
 
+function normalizeStem(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 export const adminBulkUploadQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ rows: z.array(BulkRow) }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { data: topics } = await context.supabase.from("topics").select("id, slug");
-    const slugMap = new Map((topics ?? []).map((t) => [t.slug, t.id]));
+    const slugMap = new Map((topics ?? []).map((t: any) => [t.slug, t.id]));
     const validDiffs = new Set(["easy", "medium", "hard", "very_hard"]);
     const validOpts = new Set(["A", "B", "C", "D"]);
 
     const errors: { row: number; reason: string }[] = [];
-    const inserts: any[] = [];
+    const removedDuplicates: { row: number; stem: string; reason: string }[] = [];
+    type Prepared = { line: number; stem: string; norm: string; row: any };
+    const prepared: Prepared[] = [];
+
     data.rows.forEach((r, i) => {
-      const line = i + 2; // header at line 1
+      const line = i + 2;
       const topicId = slugMap.get(r.topic_slug.trim());
       if (!topicId) return errors.push({ row: line, reason: `Unknown topic_slug "${r.topic_slug}"` });
       const diff = r.difficulty.trim().toLowerCase();
@@ -111,33 +118,75 @@ export const adminBulkUploadQuestions = createServerFn({ method: "POST" })
       if (!r.stem.trim() || !r.option_a || !r.option_b || !r.option_c || !r.option_d) {
         return errors.push({ row: line, reason: "Missing required field" });
       }
-      inserts.push({
-        topic_id: topicId,
-        difficulty: diff,
-        stem: r.stem.trim(),
-        option_a: r.option_a,
-        option_b: r.option_b,
-        option_c: r.option_c,
-        option_d: r.option_d,
-        correct_option: correct,
-        explanation: r.explanation ?? null,
-        created_by: context.userId,
+      const stem = r.stem.trim();
+      const norm = normalizeStem(stem);
+      prepared.push({
+        line,
+        stem,
+        norm,
+        row: {
+          topic_id: topicId,
+          difficulty: diff,
+          stem,
+          option_a: r.option_a,
+          option_b: r.option_b,
+          option_c: r.option_c,
+          option_d: r.option_d,
+          correct_option: correct,
+          explanation: r.explanation ?? null,
+          created_by: context.userId,
+        },
       });
     });
 
+    // 1. De-dupe within the CSV (keep first occurrence)
+    const seenInCsv = new Map<string, number>();
+    const afterCsvDedupe: Prepared[] = [];
+    for (const p of prepared) {
+      const prevLine = seenInCsv.get(p.norm);
+      if (prevLine !== undefined) {
+        removedDuplicates.push({ row: p.line, stem: p.stem, reason: `Duplicate of row ${prevLine} in this CSV` });
+      } else {
+        seenInCsv.set(p.norm, p.line);
+        afterCsvDedupe.push(p);
+      }
+    }
+
+    // 2. De-dupe against existing DB stems (in chunks)
+    const dbHits = new Set<string>();
+    const stems = afterCsvDedupe.map((p) => p.stem);
+    const CHUNK_LOOKUP = 200;
+    for (let i = 0; i < stems.length; i += CHUNK_LOOKUP) {
+      const slice = stems.slice(i, i + CHUNK_LOOKUP);
+      if (slice.length === 0) continue;
+      const { data: existing } = await context.supabase
+        .from("questions")
+        .select("stem")
+        .in("stem", slice);
+      for (const r of (existing ?? []) as any[]) dbHits.add(normalizeStem(r.stem));
+    }
+    const toInsert: any[] = [];
+    for (const p of afterCsvDedupe) {
+      if (dbHits.has(p.norm)) {
+        removedDuplicates.push({ row: p.line, stem: p.stem, reason: "Already exists in question bank" });
+      } else {
+        toInsert.push(p.row);
+      }
+    }
+
     let inserted = 0;
-    if (inserts.length > 0) {
-      // chunk to avoid huge payloads
+    if (toInsert.length > 0) {
       const CHUNK = 500;
-      for (let i = 0; i < inserts.length; i += CHUNK) {
-        const slice = inserts.slice(i, i + CHUNK);
+      for (let i = 0; i < toInsert.length; i += CHUNK) {
+        const slice = toInsert.slice(i, i + CHUNK);
         const { error, count } = await context.supabase.from("questions").insert(slice, { count: "exact" });
         if (error) throw new Error(error.message);
         inserted += count ?? slice.length;
       }
     }
-    return { inserted, errors };
+    return { inserted, errors, removedDuplicates };
   });
+
 
 // =============== PATTERN SETTINGS ===============
 export const adminGetPattern = createServerFn({ method: "GET" })
