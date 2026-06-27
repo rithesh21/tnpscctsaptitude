@@ -21,7 +21,7 @@ function Landing() {
       <header className="border-b border-border">
         <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground">K</span>
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground text-xs font-bold">T</span>
             <span>TNPSC101</span>
           </Link>
           <nav className="flex items-center gap-2">
