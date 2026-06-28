@@ -193,13 +193,16 @@ export const startPracticeTest = createServerFn({ method: "POST" })
     const u1 = distributeSlots(unitI, pattern.unit1_count, practiceCount ?? 0);
     const u2 = distributeSlots(unitII, pattern.unit2_count, practiceCount ?? 0);
 
+    // Questions table is admin-RLS only; use service role to pick from the bank.
+    const { supabaseAdmin: pickClient } = await import("@/integrations/supabase/client.server");
+
     const allPicked: string[] = [];
     for (const t of unitI) {
-      const ids = await pickForTopic(supabase, t.id, u1.get(t.id) ?? 0, pattern, exclude, null);
+      const ids = await pickForTopic(pickClient, t.id, u1.get(t.id) ?? 0, pattern, exclude, null);
       allPicked.push(...ids);
     }
     for (const t of unitII) {
-      const ids = await pickForTopic(supabase, t.id, u2.get(t.id) ?? 0, pattern, exclude, null);
+      const ids = await pickForTopic(pickClient, t.id, u2.get(t.id) ?? 0, pattern, exclude, null);
       allPicked.push(...ids);
     }
 
