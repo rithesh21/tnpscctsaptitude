@@ -89,7 +89,9 @@ const BulkRow = z.object({
 });
 
 function normalizeStem(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, " ");
+  // Exact match: only strip leading/trailing whitespace. Any difference
+  // in characters, spacing, punctuation, or case counts as a distinct question.
+  return s.trim();
 }
 
 export const adminBulkUploadQuestions = createServerFn({ method: "POST" })
