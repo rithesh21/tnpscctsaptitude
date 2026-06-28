@@ -26,6 +26,7 @@ function AdminQuestions() {
   const qc = useQueryClient();
   const listFn = useServerFn(adminListQuestions);
   const delFn = useServerFn(adminDeleteQuestion);
+  const bulkDelFn = useServerFn(adminBulkDeleteQuestions);
 
   const [topics, setTopics] = useState<Topic[]>([]);
   const [topicId, setTopicId] = useState<string | undefined>();
@@ -34,6 +35,7 @@ function AdminQuestions() {
   const [page, setPage] = useState(0);
   const [editing, setEditing] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     supabase.from("topics").select("id, name, unit, slug").order("sort_order").then(({ data }) => setTopics((data ?? []) as Topic[]));
@@ -44,11 +46,35 @@ function AdminQuestions() {
     queryFn: () => listFn({ data: { topicId, difficulty: difficulty as any, search, page, pageSize: 25 } }),
   });
 
+  // Clear selection when the visible page changes
+  useEffect(() => { setSelected(new Set()); }, [topicId, difficulty, search, page]);
+
   const delMut = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const bulkDelMut = useMutation({
+    mutationFn: (ids: string[]) => bulkDelFn({ data: { ids } }),
+    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const rows = (data?.rows ?? []) as any[];
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const someChecked = rows.some((r) => selected.has(r.id));
+  const toggleAll = () => {
+    const next = new Set(selected);
+    if (allChecked) rows.forEach((r) => next.delete(r.id));
+    else rows.forEach((r) => next.add(r.id));
+    setSelected(next);
+  };
+  const toggleOne = (id: string) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelected(next);
+  };
 
   return (
     <div className="space-y-4">
