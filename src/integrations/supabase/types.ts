@@ -91,12 +91,40 @@ export type Database = {
         }
         Relationships: []
       }
+      news_updates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           id: string
           name: string | null
+          notify_email: boolean
           target_exam: string | null
           updated_at: string
         }
@@ -105,6 +133,7 @@ export type Database = {
           created_at?: string
           id: string
           name?: string | null
+          notify_email?: boolean
           target_exam?: string | null
           updated_at?: string
         }
@@ -113,6 +142,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string | null
+          notify_email?: boolean
           target_exam?: string | null
           updated_at?: string
         }
@@ -434,6 +464,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_upcoming_saturday_event: { Args: never; Returns: Json }
       grant_admin_by_email: { Args: { _email: string }; Returns: Json }
       has_role: {
         Args: {
