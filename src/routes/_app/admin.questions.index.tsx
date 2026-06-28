@@ -110,16 +110,44 @@ function AdminQuestions() {
         <Button onClick={() => setCreating(true)}><Plus className="mr-1 h-4 w-4" /> New</Button>
       </div>
 
+      {selected.size > 0 && (
+        <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
+          <span>{selected.size} selected</span>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={bulkDelMut.isPending}
+              onClick={() => {
+                if (confirm(`Delete ${selected.size} selected questions? This cannot be undone.`)) {
+                  bulkDelMut.mutate(Array.from(selected));
+                }
+              }}
+            >
+              <Trash2 className="mr-1 h-4 w-4" /> {bulkDelMut.isPending ? "Deleting…" : "Delete selected"}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
             <p className="p-6 text-sm text-muted-foreground">Loading…</p>
-          ) : (data?.rows ?? []).length === 0 ? (
+          ) : rows.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">No questions found.</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <tr>
+                  <th className="px-4 py-2 w-8">
+                    <Checkbox
+                      checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all on this page"
+                    />
+                  </th>
                   <th className="px-4 py-2">Stem</th>
                   <th className="px-4 py-2">Topic</th>
                   <th className="px-4 py-2">Difficulty</th>
@@ -128,8 +156,15 @@ function AdminQuestions() {
                 </tr>
               </thead>
               <tbody>
-                {(data!.rows as any[]).map((q) => (
-                  <tr key={q.id} className="border-b border-border last:border-0">
+                {rows.map((q) => (
+                  <tr key={q.id} className="border-b border-border last:border-0" data-state={selected.has(q.id) ? "selected" : undefined}>
+                    <td className="px-4 py-2">
+                      <Checkbox
+                        checked={selected.has(q.id)}
+                        onCheckedChange={() => toggleOne(q.id)}
+                        aria-label="Select question"
+                      />
+                    </td>
                     <td className="px-4 py-2 max-w-md truncate">{q.stem}</td>
                     <td className="px-4 py-2 text-muted-foreground">{q.topics.name}</td>
                     <td className="px-4 py-2 capitalize">{q.difficulty.replace("_", " ")}</td>
@@ -147,6 +182,7 @@ function AdminQuestions() {
           )}
         </CardContent>
       </Card>
+
 
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{data?.total ?? 0} total</span>
