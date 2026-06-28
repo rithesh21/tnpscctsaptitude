@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminListQuestions, adminDeleteQuestion, adminUpsertQuestion, adminAiSeed } from "@/lib/admin.functions";
+import { adminListQuestions, adminDeleteQuestion, adminBulkDeleteQuestions, adminUpsertQuestion, adminAiSeed } from "@/lib/admin.functions";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ function AdminQuestions() {
   const qc = useQueryClient();
   const listFn = useServerFn(adminListQuestions);
   const delFn = useServerFn(adminDeleteQuestion);
+  const bulkDelFn = useServerFn(adminBulkDeleteQuestions);
 
   const [topics, setTopics] = useState<Topic[]>([]);
   const [topicId, setTopicId] = useState<string | undefined>();
@@ -33,6 +35,7 @@ function AdminQuestions() {
   const [page, setPage] = useState(0);
   const [editing, setEditing] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     supabase.from("topics").select("id, name, unit, slug").order("sort_order").then(({ data }) => setTopics((data ?? []) as Topic[]));
@@ -43,11 +46,35 @@ function AdminQuestions() {
     queryFn: () => listFn({ data: { topicId, difficulty: difficulty as any, search, page, pageSize: 25 } }),
   });
 
+  // Clear selection when the visible page changes
+  useEffect(() => { setSelected(new Set()); }, [topicId, difficulty, search, page]);
+
   const delMut = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const bulkDelMut = useMutation({
+    mutationFn: (ids: string[]) => bulkDelFn({ data: { ids } }),
+    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const rows = (data?.rows ?? []) as any[];
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const someChecked = rows.some((r) => selected.has(r.id));
+  const toggleAll = () => {
+    const next = new Set(selected);
+    if (allChecked) rows.forEach((r) => next.delete(r.id));
+    else rows.forEach((r) => next.add(r.id));
+    setSelected(next);
+  };
+  const toggleOne = (id: string) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelected(next);
+  };
 
   return (
     <div className="space-y-4">
@@ -83,16 +110,44 @@ function AdminQuestions() {
         <Button onClick={() => setCreating(true)}><Plus className="mr-1 h-4 w-4" /> New</Button>
       </div>
 
+      {selected.size > 0 && (
+        <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
+          <span>{selected.size} selected</span>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={bulkDelMut.isPending}
+              onClick={() => {
+                if (confirm(`Delete ${selected.size} selected questions? This cannot be undone.`)) {
+                  bulkDelMut.mutate(Array.from(selected));
+                }
+              }}
+            >
+              <Trash2 className="mr-1 h-4 w-4" /> {bulkDelMut.isPending ? "Deleting…" : "Delete selected"}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
             <p className="p-6 text-sm text-muted-foreground">Loading…</p>
-          ) : (data?.rows ?? []).length === 0 ? (
+          ) : rows.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground">No questions found.</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="border-b border-border text-left text-xs uppercase text-muted-foreground">
                 <tr>
+                  <th className="px-4 py-2 w-8">
+                    <Checkbox
+                      checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all on this page"
+                    />
+                  </th>
                   <th className="px-4 py-2">Stem</th>
                   <th className="px-4 py-2">Topic</th>
                   <th className="px-4 py-2">Difficulty</th>
@@ -101,8 +156,15 @@ function AdminQuestions() {
                 </tr>
               </thead>
               <tbody>
-                {(data!.rows as any[]).map((q) => (
-                  <tr key={q.id} className="border-b border-border last:border-0">
+                {rows.map((q) => (
+                  <tr key={q.id} className="border-b border-border last:border-0" data-state={selected.has(q.id) ? "selected" : undefined}>
+                    <td className="px-4 py-2">
+                      <Checkbox
+                        checked={selected.has(q.id)}
+                        onCheckedChange={() => toggleOne(q.id)}
+                        aria-label="Select question"
+                      />
+                    </td>
                     <td className="px-4 py-2 max-w-md truncate">{q.stem}</td>
                     <td className="px-4 py-2 text-muted-foreground">{q.topics.name}</td>
                     <td className="px-4 py-2 capitalize">{q.difficulty.replace("_", " ")}</td>
@@ -120,6 +182,7 @@ function AdminQuestions() {
           )}
         </CardContent>
       </Card>
+
 
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{data?.total ?? 0} total</span>

@@ -49,6 +49,19 @@ export const adminDeleteQuestion = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminBulkDeleteQuestions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error, count } = await context.supabase
+      .from("questions")
+      .delete({ count: "exact" })
+      .in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return { deleted: count ?? data.ids.length };
+  });
+
 export const adminListQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
@@ -89,7 +102,9 @@ const BulkRow = z.object({
 });
 
 function normalizeStem(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, " ");
+  // Exact match: only strip leading/trailing whitespace. Any difference
+  // in characters, spacing, punctuation, or case counts as a distinct question.
+  return s.trim();
 }
 
 export const adminBulkUploadQuestions = createServerFn({ method: "POST" })
