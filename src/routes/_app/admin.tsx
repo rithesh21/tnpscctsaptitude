@@ -23,6 +23,7 @@ function AdminLayout() {
     { to: "/admin/questions/bulk", label: "Bulk upload" },
     { to: "/admin/pattern", label: "Pattern" },
     { to: "/admin/main-tests", label: "Main Tests" },
+    { to: "/admin/news", label: "News" },
     { to: "/admin/analytics", label: "Analytics" },
     { to: "/admin/reports", label: "Reports" },
   ];
