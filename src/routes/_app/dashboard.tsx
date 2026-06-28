@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
 import { getDashboardInfo, startPracticeTest } from "@/lib/tests.functions";
 import { getMyMainStatus } from "@/lib/main-test.functions";
+import { listNewsUpdates } from "@/lib/news.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Trophy, Clock } from "lucide-react";
+import { BookOpen, Trophy, Megaphone, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/format";
 
@@ -14,15 +16,40 @@ export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
 });
 
+function LiveClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const dateStr = now.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const timeStr = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return (
+    <Card className="bg-gradient-to-br from-primary/10 to-transparent">
+      <CardContent className="flex items-center justify-between p-5">
+        <div className="flex items-center gap-3">
+          <Clock className="h-5 w-5 text-primary" />
+          <div>
+            <div className="text-sm text-muted-foreground">{dateStr}</div>
+            <div className="font-mono text-2xl font-semibold tracking-tight">{timeStr}</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function Dashboard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const dashFn = useServerFn(getDashboardInfo);
   const mainFn = useServerFn(getMyMainStatus);
   const startFn = useServerFn(startPracticeTest);
+  const newsFn = useServerFn(listNewsUpdates);
 
   const { data: dash, isLoading } = useQuery({ queryKey: ["dashboard"], queryFn: () => dashFn() });
   const { data: main } = useQuery({ queryKey: ["main-status"], queryFn: () => mainFn() });
+  const { data: news = [] } = useQuery({ queryKey: ["news"], queryFn: () => newsFn() });
 
   const startMut = useMutation({
     mutationFn: () => startFn({ data: { timeLimitMinutes: null } }),
@@ -43,6 +70,8 @@ function Dashboard() {
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Pick up where you left off.</p>
       </div>
+
+      <LiveClock />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-2 border-primary/20">
@@ -95,6 +124,29 @@ function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> News &amp; updates</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {news.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No announcements yet. Check back soon.</p>
+          ) : (
+            <ul className="space-y-4">
+              {news.map((n) => (
+                <li key={n.id} className="border-l-2 border-primary/40 pl-3">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="font-medium">{n.title}</div>
+                    <div className="shrink-0 text-xs text-muted-foreground">{formatDate(n.created_at)}</div>
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{n.body}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

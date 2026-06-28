@@ -22,6 +22,7 @@ import { Route as AppAdminIndexRouteImport } from './routes/_app/admin.index'
 import { Route as AppPracticeNewRouteImport } from './routes/_app/practice.new'
 import { Route as AppAdminReportsRouteImport } from './routes/_app/admin.reports'
 import { Route as AppAdminPatternRouteImport } from './routes/_app/admin.pattern'
+import { Route as AppAdminNewsRouteImport } from './routes/_app/admin.news'
 import { Route as AppAdminMainTestsRouteImport } from './routes/_app/admin.main-tests'
 import { Route as AppAdminAnalyticsRouteImport } from './routes/_app/admin.analytics'
 import { Route as AppTestTestIdIndexRouteImport } from './routes/_app/test.$testId.index'
@@ -93,6 +94,11 @@ const AppAdminPatternRoute = AppAdminPatternRouteImport.update({
   path: '/pattern',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminNewsRoute = AppAdminNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminMainTestsRoute = AppAdminMainTestsRouteImport.update({
   id: '/main-tests',
   path: '/main-tests',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/admin/analytics': typeof AppAdminAnalyticsRoute
   '/admin/main-tests': typeof AppAdminMainTestsRoute
+  '/admin/news': typeof AppAdminNewsRoute
   '/admin/pattern': typeof AppAdminPatternRoute
   '/admin/reports': typeof AppAdminReportsRoute
   '/practice/new': typeof AppPracticeNewRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/admin/analytics': typeof AppAdminAnalyticsRoute
   '/admin/main-tests': typeof AppAdminMainTestsRoute
+  '/admin/news': typeof AppAdminNewsRoute
   '/admin/pattern': typeof AppAdminPatternRoute
   '/admin/reports': typeof AppAdminReportsRoute
   '/practice/new': typeof AppPracticeNewRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/_app/admin/analytics': typeof AppAdminAnalyticsRoute
   '/_app/admin/main-tests': typeof AppAdminMainTestsRoute
+  '/_app/admin/news': typeof AppAdminNewsRoute
   '/_app/admin/pattern': typeof AppAdminPatternRoute
   '/_app/admin/reports': typeof AppAdminReportsRoute
   '/_app/practice/new': typeof AppPracticeNewRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/admin/analytics'
     | '/admin/main-tests'
+    | '/admin/news'
     | '/admin/pattern'
     | '/admin/reports'
     | '/practice/new'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/admin/analytics'
     | '/admin/main-tests'
+    | '/admin/news'
     | '/admin/pattern'
     | '/admin/reports'
     | '/practice/new'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/_app/profile'
     | '/_app/admin/analytics'
     | '/_app/admin/main-tests'
+    | '/_app/admin/news'
     | '/_app/admin/pattern'
     | '/_app/admin/reports'
     | '/_app/practice/new'
@@ -347,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPatternRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/_app/admin/news': {
+      id: '/_app/admin/news'
+      path: '/news'
+      fullPath: '/admin/news'
+      preLoaderRoute: typeof AppAdminNewsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/_app/admin/main-tests': {
       id: '/_app/admin/main-tests'
       path: '/main-tests'
@@ -395,6 +414,7 @@ declare module '@tanstack/react-router' {
 interface AppAdminRouteChildren {
   AppAdminAnalyticsRoute: typeof AppAdminAnalyticsRoute
   AppAdminMainTestsRoute: typeof AppAdminMainTestsRoute
+  AppAdminNewsRoute: typeof AppAdminNewsRoute
   AppAdminPatternRoute: typeof AppAdminPatternRoute
   AppAdminReportsRoute: typeof AppAdminReportsRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
@@ -405,6 +425,7 @@ interface AppAdminRouteChildren {
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminAnalyticsRoute: AppAdminAnalyticsRoute,
   AppAdminMainTestsRoute: AppAdminMainTestsRoute,
+  AppAdminNewsRoute: AppAdminNewsRoute,
   AppAdminPatternRoute: AppAdminPatternRoute,
   AppAdminReportsRoute: AppAdminReportsRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
@@ -450,13 +471,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
