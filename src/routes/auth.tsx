@@ -23,8 +23,12 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — TNPSC101" },
-      { name: "description", content: "Sign in or create your TNPSC101 account to start practicing mock tests." },
+      { name: "description", content: "Sign in or create your TNPSC101 account to start practicing aptitude and reasoning mock tests." },
+      { property: "og:title", content: "Sign in — TNPSC101" },
+      { property: "og:description", content: "Sign in or create your TNPSC101 account to start practicing aptitude and reasoning mock tests." },
+      { property: "og:url", content: "https://tnpscctsaptitude.lovable.app/auth" },
     ],
+    links: [{ rel: "canonical", href: "https://tnpscctsaptitude.lovable.app/auth" }],
   }),
   component: AuthPage,
 });
@@ -41,6 +45,7 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
+        <h1 className="sr-only">Authentication</h1>
         <Link to="/" className="mb-6 flex items-center justify-center gap-2 font-semibold">
           <span className="grid h-8 w-8 place-items-center rounded-md bg-primary text-primary-foreground text-xs font-bold">T</span>
           <span>TNPSC101</span>

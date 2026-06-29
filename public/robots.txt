@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tnpscctsaptitude.lovable.app/sitemap.xml

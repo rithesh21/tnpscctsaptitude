@@ -10,7 +10,9 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Unlimited 25-question mock tests across 16 aptitude and reasoning topics. Compete weekly on the Saturday Main Test leaderboard." },
       { property: "og:title", content: "TNPSC101 — Aptitude & Reasoning Mock Tests" },
       { property: "og:description", content: "Unlimited 25-question practice tests + weekly ranked Main Test for competitive exam aspirants." },
+      { property: "og:url", content: "https://tnpscctsaptitude.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://tnpscctsaptitude.lovable.app/" }],
   }),
   component: Landing,
 });

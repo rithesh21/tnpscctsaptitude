@@ -1,0 +1,8 @@
+# TNPSC101
+
+> Aptitude and reasoning mock test platform for TNPSC, bank, SSC, and placement aspirants. Unlimited 25-question practice tests plus a weekly ranked Saturday Main Test.
+
+## Pages
+
+- [Home](/): Overview of TNPSC101, features, and how the platform works.
+- [Sign in](/auth): Create an account or sign in with email or Google to start practicing.

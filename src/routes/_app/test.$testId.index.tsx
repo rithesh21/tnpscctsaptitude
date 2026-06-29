@@ -11,7 +11,13 @@ import { toast } from "sonner";
 import { Flag, Clock, X } from "lucide-react";
 
 export const Route = createFileRoute("/_app/test/$testId/")({
-  head: () => ({ meta: [{ title: "Mock Test — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "Mock Test — TNPSC101" },
+      { name: "description", content: "Take your 25-question TNPSC101 aptitude and reasoning mock test." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: TestTaker,
 });
 
@@ -131,11 +137,17 @@ function TestTaker() {
 
   return (
     <div className="min-h-screen bg-background">
+      <h1 className="sr-only">Mock Test</h1>
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="container mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/dashboard" })}>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Exit test and return to dashboard"
+              onClick={() => navigate({ to: "/dashboard" })}
+            >
               <X className="h-4 w-4" />
             </Button>
             <div className="hidden text-sm text-muted-foreground sm:block">

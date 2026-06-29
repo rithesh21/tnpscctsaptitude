@@ -13,7 +13,12 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/profile")({
-  head: () => ({ meta: [{ title: "Profile — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "Profile — TNPSC101" },
+      { name: "description", content: "Manage your TNPSC101 profile, target exam, and email notification preferences." },
+    ],
+  }),
   component: Profile,
 });
 
@@ -56,6 +61,7 @@ function Profile() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
+      <h1 className="sr-only">Profile</h1>
       <Card>
         <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
         <CardContent className="space-y-4">

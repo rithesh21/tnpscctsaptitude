@@ -11,7 +11,12 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/practice/new")({
-  head: () => ({ meta: [{ title: "New Practice Test — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "New Practice Test — TNPSC101" },
+      { name: "description", content: "Start a new 25-question aptitude and reasoning practice test with an optional timer." },
+    ],
+  }),
   component: NewPractice,
 });
 
@@ -29,6 +34,7 @@ function NewPractice() {
 
   return (
     <div className="mx-auto max-w-xl space-y-4">
+      <h1 className="sr-only">New Practice Test</h1>
       <Card>
         <CardHeader>
           <CardTitle>New Practice Test</CardTitle>
