@@ -59,7 +59,13 @@ function AdminQuestions() {
 
   const bulkDelMut = useMutation({
     mutationFn: (ids: string[]) => bulkDelFn({ data: { ids } }),
-    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); setSelectAllMatching(false); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkDelFilterMut = useMutation({
+    mutationFn: () => bulkDelByFilterFn({ data: { topicId, difficulty: difficulty as any, search } }),
+    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); setSelectAllMatching(false); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
