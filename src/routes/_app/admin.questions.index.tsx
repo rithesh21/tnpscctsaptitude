@@ -49,7 +49,7 @@ function AdminQuestions() {
   });
 
   // Clear selection when the visible page changes
-  useEffect(() => { setSelected(new Set()); }, [topicId, difficulty, search, page]);
+  useEffect(() => { setSelected(new Set()); setSelectAllMatching(false); }, [topicId, difficulty, search, page]);
 
   const delMut = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
