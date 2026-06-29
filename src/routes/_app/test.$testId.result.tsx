@@ -12,7 +12,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/test/$testId/result")({
-  head: () => ({ meta: [{ title: "Test Result — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "Test Results — TNPSC101" },
+      { name: "description", content: "Review your TNPSC101 mock test score, topic breakdown, and detailed answers." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: Results,
 });
 
@@ -31,6 +37,7 @@ function Results() {
 
   return (
     <div className="space-y-6">
+      <h1 className="sr-only">Test Results</h1>
       <div className="flex items-center justify-between">
         <Link to="/dashboard"><Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" /> Back</Button></Link>
       </div>

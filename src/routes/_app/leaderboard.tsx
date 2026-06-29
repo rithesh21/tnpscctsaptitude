@@ -8,7 +8,14 @@ import { formatDate } from "@/lib/format";
 import { Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/_app/leaderboard")({
-  head: () => ({ meta: [{ title: "Leaderboard — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "Leaderboard — TNPSC101" },
+      { name: "description", content: "Live and final rankings for TNPSC101 Saturday Main Test events." },
+      { property: "og:title", content: "Leaderboard — TNPSC101" },
+      { property: "og:description", content: "Live and final rankings for TNPSC101 Saturday Main Test events." },
+    ],
+  }),
   component: LB,
 });
 
