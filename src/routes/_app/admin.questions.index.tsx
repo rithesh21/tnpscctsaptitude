@@ -27,6 +27,7 @@ function AdminQuestions() {
   const listFn = useServerFn(adminListQuestions);
   const delFn = useServerFn(adminDeleteQuestion);
   const bulkDelFn = useServerFn(adminBulkDeleteQuestions);
+  const bulkDelByFilterFn = useServerFn(adminBulkDeleteByFilter);
 
   const [topics, setTopics] = useState<Topic[]>([]);
   const [topicId, setTopicId] = useState<string | undefined>();
