@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminListQuestions, adminDeleteQuestion, adminBulkDeleteQuestions, adminUpsertQuestion, adminAiSeed } from "@/lib/admin.functions";
+import { adminListQuestions, adminDeleteQuestion, adminBulkDeleteQuestions, adminBulkDeleteByFilter, adminUpsertQuestion, adminAiSeed } from "@/lib/admin.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
