@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminListQuestions, adminDeleteQuestion, adminBulkDeleteQuestions, adminUpsertQuestion, adminAiSeed } from "@/lib/admin.functions";
+import { adminListQuestions, adminDeleteQuestion, adminBulkDeleteQuestions, adminBulkDeleteByFilter, adminUpsertQuestion, adminAiSeed } from "@/lib/admin.functions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +27,7 @@ function AdminQuestions() {
   const listFn = useServerFn(adminListQuestions);
   const delFn = useServerFn(adminDeleteQuestion);
   const bulkDelFn = useServerFn(adminBulkDeleteQuestions);
+  const bulkDelByFilterFn = useServerFn(adminBulkDeleteByFilter);
 
   const [topics, setTopics] = useState<Topic[]>([]);
   const [topicId, setTopicId] = useState<string | undefined>();
@@ -36,6 +37,7 @@ function AdminQuestions() {
   const [editing, setEditing] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAllMatching, setSelectAllMatching] = useState(false);
 
   useEffect(() => {
     supabase.from("topics").select("id, name, unit, slug").order("sort_order").then(({ data }) => setTopics((data ?? []) as Topic[]));
@@ -47,7 +49,7 @@ function AdminQuestions() {
   });
 
   // Clear selection when the visible page changes
-  useEffect(() => { setSelected(new Set()); }, [topicId, difficulty, search, page]);
+  useEffect(() => { setSelected(new Set()); setSelectAllMatching(false); }, [topicId, difficulty, search, page]);
 
   const delMut = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
@@ -57,7 +59,13 @@ function AdminQuestions() {
 
   const bulkDelMut = useMutation({
     mutationFn: (ids: string[]) => bulkDelFn({ data: { ids } }),
-    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); setSelectAllMatching(false); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const bulkDelFilterMut = useMutation({
+    mutationFn: () => bulkDelByFilterFn({ data: { topicId, difficulty: difficulty as any, search } }),
+    onSuccess: (r) => { toast.success(`Deleted ${r.deleted} questions`); setSelected(new Set()); setSelectAllMatching(false); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -110,22 +118,37 @@ function AdminQuestions() {
         <Button onClick={() => setCreating(true)}><Plus className="mr-1 h-4 w-4" /> New</Button>
       </div>
 
-      {selected.size > 0 && (
-        <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-          <span>{selected.size} selected</span>
+      {(selected.size > 0 || selectAllMatching) && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <span>
+              {selectAllMatching
+                ? `All ${data?.total ?? 0} matching questions selected`
+                : `${selected.size} selected on this page`}
+            </span>
+            {!selectAllMatching && allChecked && (data?.total ?? 0) > rows.length && (
+              <Button variant="link" size="sm" className="h-auto p-0" onClick={() => setSelectAllMatching(true)}>
+                Select all {data?.total} matching across pages
+              </Button>
+            )}
+          </div>
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>Clear</Button>
+            <Button variant="ghost" size="sm" onClick={() => { setSelected(new Set()); setSelectAllMatching(false); }}>Clear</Button>
             <Button
               variant="destructive"
               size="sm"
-              disabled={bulkDelMut.isPending}
+              disabled={bulkDelMut.isPending || bulkDelFilterMut.isPending}
               onClick={() => {
-                if (confirm(`Delete ${selected.size} selected questions? This cannot be undone.`)) {
+                if (selectAllMatching) {
+                  if (confirm(`Delete ALL ${data?.total ?? 0} matching questions? This cannot be undone.`)) {
+                    bulkDelFilterMut.mutate();
+                  }
+                } else if (confirm(`Delete ${selected.size} selected questions? This cannot be undone.`)) {
                   bulkDelMut.mutate(Array.from(selected));
                 }
               }}
             >
-              <Trash2 className="mr-1 h-4 w-4" /> {bulkDelMut.isPending ? "Deleting…" : "Delete selected"}
+              <Trash2 className="mr-1 h-4 w-4" /> {(bulkDelMut.isPending || bulkDelFilterMut.isPending) ? "Deleting…" : "Delete selected"}
             </Button>
           </div>
         </div>

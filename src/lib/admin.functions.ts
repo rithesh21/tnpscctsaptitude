@@ -51,15 +51,62 @@ export const adminDeleteQuestion = createServerFn({ method: "POST" })
 
 export const adminBulkDeleteQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(500) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ ids: z.array(z.string().uuid()).min(1).max(5000) }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { error, count } = await context.supabase
-      .from("questions")
-      .delete({ count: "exact" })
-      .in("id", data.ids);
-    if (error) throw new Error(error.message);
-    return { deleted: count ?? data.ids.length };
+    const CHUNK = 500;
+    let total = 0;
+    for (let i = 0; i < data.ids.length; i += CHUNK) {
+      const slice = data.ids.slice(i, i + CHUNK);
+      const { error, count } = await context.supabase
+        .from("questions")
+        .delete({ count: "exact" })
+        .in("id", slice);
+      if (error) throw new Error(error.message);
+      total += count ?? slice.length;
+    }
+    return { deleted: total };
+  });
+
+export const adminBulkDeleteByFilter = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      topicId: z.string().uuid().optional(),
+      difficulty: z.enum(["easy", "medium", "hard", "very_hard"]).optional(),
+      search: z.string().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const ids: string[] = [];
+    const PAGE = 1000;
+    let from = 0;
+    while (true) {
+      let q = context.supabase.from("questions").select("id").range(from, from + PAGE - 1);
+      if (data.topicId) q = q.eq("topic_id", data.topicId);
+      if (data.difficulty) q = q.eq("difficulty", data.difficulty);
+      if (data.search && data.search.trim().length > 0) q = q.ilike("stem", `%${data.search.trim()}%`);
+      const { data: rows, error } = await q;
+      if (error) throw new Error(error.message);
+      const got = (rows ?? []) as { id: string }[];
+      ids.push(...got.map((r) => r.id));
+      if (got.length < PAGE) break;
+      from += PAGE;
+    }
+    if (ids.length === 0) return { deleted: 0 };
+    const CHUNK = 500;
+    let total = 0;
+    for (let i = 0; i < ids.length; i += CHUNK) {
+      const slice = ids.slice(i, i + CHUNK);
+      const { error, count } = await context.supabase
+        .from("questions")
+        .delete({ count: "exact" })
+        .in("id", slice);
+      if (error) throw new Error(error.message);
+      total += count ?? slice.length;
+    }
+    return { deleted: total };
   });
 
 export const adminListQuestions = createServerFn({ method: "POST" })
