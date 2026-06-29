@@ -37,6 +37,7 @@ function AdminQuestions() {
   const [editing, setEditing] = useState<any | null>(null);
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAllMatching, setSelectAllMatching] = useState(false);
 
   useEffect(() => {
     supabase.from("topics").select("id, name, unit, slug").order("sort_order").then(({ data }) => setTopics((data ?? []) as Topic[]));
