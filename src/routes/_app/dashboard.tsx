@@ -12,7 +12,13 @@ import { toast } from "sonner";
 import { formatDate } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — TNPSC101" },
+      { name: "description", content: "Your TNPSC101 home: live date, news, quick start a practice test, and your recent attempts." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: Dashboard,
 });
 

@@ -14,7 +14,9 @@ export const Route = createFileRoute("/_app/leaderboard")({
       { name: "description", content: "Live and final rankings for TNPSC101 Saturday Main Test events." },
       { property: "og:title", content: "Leaderboard — TNPSC101" },
       { property: "og:description", content: "Live and final rankings for TNPSC101 Saturday Main Test events." },
+      { property: "og:url", content: "https://tnpscctsaptitude.lovable.app/leaderboard" },
     ],
+    links: [{ rel: "canonical", href: "https://tnpscctsaptitude.lovable.app/leaderboard" }],
   }),
   component: LB,
 });
