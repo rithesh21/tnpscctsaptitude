@@ -97,7 +97,9 @@ function Landing() {
             </CardContent>
           </Card>
         </div>
-      </section>
+        </section>
+      </main>
+
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} TNPSC101 — built for aspirants.

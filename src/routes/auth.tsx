@@ -43,7 +43,7 @@ function AuthPage() {
   }, [loading, session, navigate, confirmEmail]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <h1 className="sr-only">Authentication</h1>
         <Link to="/" className="mb-6 flex items-center justify-center gap-2 font-semibold">
