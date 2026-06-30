@@ -90,7 +90,7 @@ function AuthPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 }
 
