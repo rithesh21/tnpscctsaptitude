@@ -15,8 +15,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_app/profile")({
   head: () => ({
     meta: [
-      { title: "Profile — TNPSC101" },
+      { title: "Your profile — TNPSC101" },
       { name: "description", content: "Manage your TNPSC101 profile, target exam, and email notification preferences." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: Profile,

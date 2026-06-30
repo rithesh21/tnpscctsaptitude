@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/history")({
-  head: () => ({ meta: [{ title: "History — TNPSC101" }] }),
+  head: () => ({
+    meta: [
+      { title: "Test history — TNPSC101" },
+      { name: "description", content: "Review every practice and Main Test attempt you've taken on TNPSC101, with scores and dates." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: HistoryPage,
 });
 
